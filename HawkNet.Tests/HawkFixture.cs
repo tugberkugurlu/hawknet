@@ -4,11 +4,8 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-#if NET45
-using System.Security.Claims;
 using System.Threading.Tasks;
-#endif
+using System.Security.Claims;
 
 namespace HawkNet.Tests
 {
@@ -19,58 +16,58 @@ namespace HawkNet.Tests
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void ShouldFailAuthenticationOnNullAuthorization()
+        public Task ShouldFailAuthenticationOnNullAuthorization()
         {
-            Hawk.Authenticate(null, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
+            return Hawk.Authenticate(null, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void ShouldFailAuthenticationOnEmptyAuthorization()
+        public Task ShouldFailAuthenticationOnEmptyAuthorization()
         {
-            Hawk.Authenticate("", "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
+            return Hawk.Authenticate("", "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void ShouldFailAuthenticationOnNullHost()
+        public Task ShouldFailAuthenticationOnNullHost()
         {
-            Hawk.Authenticate(ValidAuthorization, null, "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
+            return Hawk.Authenticate(ValidAuthorization, null, "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void ShouldFailAuthenticationOnEmptyHost()
+        public Task ShouldFailAuthenticationOnEmptyHost()
         {
-            Hawk.Authenticate(ValidAuthorization, "", "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
+            return Hawk.Authenticate(ValidAuthorization, "", "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
         }
 
         [TestMethod]
         [ExpectedException(typeof(SecurityException), "Missing credentials")]
-        public void ShouldFailAuthenticationOnNullCredential()
+        public Task ShouldFailAuthenticationOnNullCredential()
         {
-            Hawk.Authenticate(ValidAuthorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => null);
+            return Hawk.Authenticate(ValidAuthorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(SecurityException), "Missing attributes")]
-        public void ShouldFailAuthenticationOnMissingAuthAttribute()
+        public Task ShouldFailAuthenticationOnMissingAuthAttribute()
         {
-            Hawk.Authenticate("ts=\"1353788437\", nonce=\"k3j4h2\", mac=\"/qwS4UjfVWMcUyW6EEgUH4jlr7T/wuKe3dKijvTvSos=\", ext=\"hello\"",
+            return Hawk.Authenticate("ts=\"1353788437\", nonce=\"k3j4h2\", mac=\"/qwS4UjfVWMcUyW6EEgUH4jlr7T/wuKe3dKijvTvSos=\", ext=\"hello\"",
                 "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
         }
 
         [TestMethod]
         [ExpectedException(typeof(SecurityException), "Missing attributes")]
-        public void ShouldFailAuthenticationOnUnknownAuthAttribute()
+        public Task ShouldFailAuthenticationOnUnknownAuthAttribute()
         {
-            Hawk.Authenticate("id=\"123\", ts=\"1353788437\", nonce=\"k3j4h2\", x=\"3\", mac=\"/qwS4UjfVWMcUyW6EEgUH4jlr7T/wuKe3dKijvTvSos=\", ext=\"hello\"",
+            return Hawk.Authenticate("id=\"123\", ts=\"1353788437\", nonce=\"k3j4h2\", x=\"3\", mac=\"/qwS4UjfVWMcUyW6EEgUH4jlr7T/wuKe3dKijvTvSos=\", ext=\"hello\"",
                 "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
         }
 
         [TestMethod]
         [ExpectedException(typeof(SecurityException), "Invalid credentials")]
-        public void ShouldFailAuthenticationOnMissingCredentialAlgorithm()
+        public Task ShouldFailAuthenticationOnMissingCredentialAlgorithm()
         {
             var credential = new HawkCredential
             {
@@ -78,12 +75,12 @@ namespace HawkNet.Tests
                 User = "steve"
             };
 
-            Hawk.Authenticate(ValidAuthorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => credential);
+            return Hawk.Authenticate(ValidAuthorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => Task.FromResult(credential));
         }
 
         [TestMethod]
         [ExpectedException(typeof(SecurityException), "Invalid credentials")]
-        public void ShouldFailAuthenticationOnMissingCredentialKey()
+        public Task ShouldFailAuthenticationOnMissingCredentialKey()
         {
             var credential = new HawkCredential
             {
@@ -91,12 +88,12 @@ namespace HawkNet.Tests
                 User = "steve"
             };
 
-            Hawk.Authenticate(ValidAuthorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => credential);
+            return Hawk.Authenticate(ValidAuthorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => Task.FromResult(credential));
         }
 
         [TestMethod]
         [ExpectedException(typeof(SecurityException), "Unknown algorithm")]
-        public void ShouldFailAuthenticationOnUnknownCredentialAlgorithm()
+        public Task ShouldFailAuthenticationOnUnknownCredentialAlgorithm()
         {
             var credential = new HawkCredential
             {
@@ -105,19 +102,19 @@ namespace HawkNet.Tests
                 User = "steve"
             };
 
-            Hawk.Authenticate(ValidAuthorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => credential);
+            return Hawk.Authenticate(ValidAuthorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => Task.FromResult(credential));
         }
 
         [TestMethod]
         [ExpectedException(typeof(SecurityException), "Bad mac")]
-        public void ShouldFailAuthenticationOnInvalidMac()
+        public Task ShouldFailAuthenticationOnInvalidMac()
         {
             var authorization = "id=\"123\", ts=\"1353788437\", nonce=\"k3j4h2\", mac=\"lDdDLlWQhgcxTvYgzzLo3EZExogXXXX=\", ext=\"hello\"";
-            Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
+            return Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), GetCredential);
         }
 
         [TestMethod]
-        public void ShouldParseValidAuthHeaderWithSha1()
+        public async Task ShouldParseValidAuthHeaderWithSha1()
         {
             var credential = new HawkCredential
                 {
@@ -133,13 +130,13 @@ namespace HawkNet.Tests
             var authorization = string.Format("id=\"456\", ts=\"{0}\", nonce=\"k3j4h2\", mac=\"{1}\", ext=\"hello\"",
                 ts, mac);
 
-            var principal = Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => credential);
+            var principal = await Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => Task.FromResult(credential));
 
             Assert.IsNotNull(principal);
         }
 
         [TestMethod]
-        public void ShouldParseValidAuthHeaderWithSha256()
+        public async Task ShouldParseValidAuthHeaderWithSha256()
         {
           
             var credential = new HawkCredential
@@ -155,14 +152,14 @@ namespace HawkNet.Tests
 
             var authorization = string.Format("id=\"456\", ts=\"{0}\", nonce=\"k3j4h2\", mac=\"{1}\", ext=\"hello\"",
                 ts, mac);
-            
-            var principal = Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => credential);
+
+            var principal = await Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => Task.FromResult(credential));
 
             Assert.IsNotNull(principal);
         }
 
         [TestMethod]
-        public void ShouldParseValidAuthHeaderWithPayloadHashAndSha256()
+        public async Task ShouldParseValidAuthHeaderWithPayloadHashAndSha256()
         {
             var credential = new HawkCredential
             {
@@ -184,7 +181,7 @@ namespace HawkNet.Tests
             var authorization = string.Format("id=\"456\", ts=\"{0}\", nonce=\"k3j4h2\", mac=\"{1}\", ext=\"hello\", hash=\"{2}\"",
                 ts, mac, hash);
 
-            var principal = Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => credential, 
+            var principal = await Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => Task.FromResult(credential), 
                 requestPayload:() => payload);
 
             Assert.IsNotNull(principal);
@@ -192,7 +189,7 @@ namespace HawkNet.Tests
 
         [TestMethod]
         [ExpectedException(typeof(SecurityException))]
-        public void ShouldFailWithTimestampInThePast()
+        public Task ShouldFailWithTimestampInThePast()
         {
             var credential = new HawkCredential
             {
@@ -208,12 +205,12 @@ namespace HawkNet.Tests
             var authorization = string.Format("id=\"456\", ts=\"{0}\", nonce=\"k3j4h2\", mac=\"{1}\", ext=\"hello\"",
                 ts, mac);
 
-            Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => credential);
+            return Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => Task.FromResult(credential));
         }
 
         [TestMethod]
         [ExpectedException(typeof(SecurityException))]
-        public void ShouldFailWithTimestampInTheFuture()
+        public Task ShouldFailWithTimestampInTheFuture()
         {
             var credential = new HawkCredential
             {
@@ -229,7 +226,7 @@ namespace HawkNet.Tests
             var authorization = string.Format("id=\"456\", ts=\"{0}\", nonce=\"k3j4h2\", mac=\"{1}\", ext=\"hello\"",
                 ts, mac);
 
-            Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => credential);
+            return Hawk.Authenticate(authorization, "example.com", "get", new Uri("http://example.com:8080/resource/4?filter=a"), (s) => Task.FromResult(credential));
         }
 
         [TestMethod]
@@ -303,7 +300,7 @@ namespace HawkNet.Tests
         }
 
         [TestMethod]
-        public void ShouldAuthenticateBewit()
+        public async Task ShouldAuthenticateBewit()
         {
             var credential = new HawkCredential
             {
@@ -315,21 +312,23 @@ namespace HawkNet.Tests
             var bewit = Hawk.GetBewit("example.com", new Uri("http://example.com:8080/resource/4?filter=a"), credential,
                 200, "hello");
 
-            var claims = Hawk.AuthenticateBewit(bewit, "example.com", new Uri("http://example.com:8080/resource/4?filter=a&bewit=" + bewit),
-                s => credential);
+            var claims = await Hawk.AuthenticateBewit(bewit, "example.com", new Uri("http://example.com:8080/resource/4?filter=a&bewit=" + bewit),
+                s => Task.FromResult(credential));
 
             Assert.IsNotNull(claims);
         }
 
-        private HawkCredential GetCredential(string id)
+        private Task<HawkCredential> GetCredential(string id)
         {
-            return new HawkCredential
+            var credentials = new HawkCredential
             {
                 Id = id,
                 Key = "werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn",
                 Algorithm = (id == "1" ? "hmacsha1" : "hmacsha256"),
                 User = "steve"
             };
+
+            return Task.FromResult(credentials);
         }
     }
 }

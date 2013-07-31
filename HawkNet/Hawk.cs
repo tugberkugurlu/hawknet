@@ -1,20 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
-using System.Web;
-using System.Diagnostics;
-
-#if NET45
-using System.Net.Http;
-using System.Security.Claims;
 using System.Threading.Tasks;
-#endif
+using System.Web;
 
 namespace HawkNet
 {
@@ -49,7 +42,7 @@ namespace HawkNet
         /// <param name="timestampSkewSec">Accepted Time skew for timestamp verification</param>
         /// <param name="payloadHash">Hash of the request payload</param>
         /// <returns></returns>
-        public static IPrincipal Authenticate(string authorization, string host, string method, Uri uri, Func<string, HawkCredential> credentials, int timestampSkewSec = 60, Func<byte[]> requestPayload = null)
+        public static async Task<IPrincipal> Authenticate(string authorization, string host, string method, Uri uri, Func<string, Task<HawkCredential>> credentials, int timestampSkewSec = 60, Func<byte[]> requestPayload = null)
         {
             TraceSource.TraceInformation(string.Format("Received Auth header: {0}",
                 authorization));
@@ -85,7 +78,7 @@ namespace HawkNet
             HawkCredential credential = null;
             try
             {
-                credential = credentials(attributes["id"]);
+                credential = await credentials(attributes["id"]);
             }
             catch (Exception ex)
             {
@@ -235,7 +228,7 @@ namespace HawkNet
         /// <param name="credentials"></param>
         /// <param name="timestampSkewSec"></param>
         /// <returns></returns>
-        public static IPrincipal AuthenticateBewit(string bewit, string host, Uri uri, Func<string, HawkCredential> credentials, int timestampSkewSec = 60)
+        public static async Task<IPrincipal> AuthenticateBewit(string bewit, string host, Uri uri, Func<string, Task<HawkCredential>> credentials, int timestampSkewSec = 60)
         {
             var decodedBewit = Encoding.UTF8.GetString(Convert.FromBase64String(bewit));
 
@@ -261,7 +254,7 @@ namespace HawkNet
             HawkCredential credential = null;
             try
             {
-                credential = credentials(bewitParts[0]);
+                credential = await credentials(bewitParts[0]);
             }
             catch (Exception ex)
             {

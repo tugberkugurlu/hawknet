@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Principal;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -51,7 +48,7 @@ namespace HawkNet
         /// <param name="credentials">A method for searching across the available credentials</param>
         /// <param name="timestampSkewSec">Time skew in seconds for timestamp verification</param>
         /// <returns>A new ClaimsPrincipal instance representing the authenticated user</returns>
-        public static IPrincipal Authenticate(this HttpRequestMessage request, Func<string, HawkCredential> credentials, int timestampSkewSec = 60)
+        public static Task<IPrincipal> Authenticate(this HttpRequestMessage request, Func<string, Task<HawkCredential>> credentials, int timestampSkewSec = 60)
         {
             if (request.Method == HttpMethod.Get &&
                 !string.IsNullOrEmpty(request.RequestUri.Query))

@@ -61,7 +61,7 @@ namespace HawkNet.Tests
             request.Headers.Host = "example.com:8080";
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Hawk", authorization);
 
-            var principal = request.Authenticate((id) => credential);
+            var principal = request.Authenticate((id) => Task.FromResult(credential));
 
             Assert.IsNotNull(principal);
         }
